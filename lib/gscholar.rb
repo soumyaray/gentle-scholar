@@ -1,19 +1,22 @@
 require 'typhoeus'
 require 'nokogiri'
+require 'date'
 
 class GScholarPub
-  GSCHOLAR_URL = "http://scholar.google.com/citations?view_op=view_citation&hl=en&user="
+  GSCHOLAR_CIT_URL = \
+      "http://scholar.google.com/citations?view_op=view_citation&hl=en"
 
-  attr_reader :title, :cites, :cites_url, :chart_url, :article_url
-  attr_reader :authors, :journal, :volume, :issue, :pages, :description
-  attr_reader :doc
+  attr_reader :title, :cites, :cites_url, :chart_url, :article_url, \
+               :authors, :date, :journal, :volume, :issue, :pages, :publisher, \
+               :description, :gscholar_url
+  attr_reader :doc                  # TODO only for development, testing modes
 
   # example scholar_pub_id = 6WjiSOwAAAAJ:u5HHmVD_uO8C
   def initialize(scholar_pub_id)
     auth_id, pub_id = scholar_pub_id.split(/:/)
-    url = GSCHOLAR_URL + auth_id+"&citation_for_view="+auth_id+":"+pub_id
-    req = Typhoeus::Request.new(url)
-    res = req.run
+    url = GSCHOLAR_CIT_URL + '&user=' + auth_id \
+                           + '&citation_for_view='+auth_id+':'+pub_id
+    res = Typhoeus::Request.new(url).run
 
     # 1. the quick and dirty way of getting the number of cites
     # cites = res.response_body[/Cited by \d+/][/\d+/].to_i
@@ -26,8 +29,6 @@ class GScholarPub
     #   <div class="cit-dt">Total citations</div>
     #   <div class="cit-dd">
     #     <a class="cit-dark-link" href="...">Cited by 15</a>
-    #   </div>
-    # </div>
     @cites = doc.xpath("//div[contains(@id,'scholar_sec')]/div/a"\
                       ).text[/\d+/].to_i
     @cites_url = doc.xpath("//div[contains(@id,'scholar_sec')]/div/a"\
@@ -36,8 +37,6 @@ class GScholarPub
     # <div id="title">
     #   <a style="text-decoration:none" href="http://linktoarticle" >
     #      Paper Title
-    #   </a>
-    # </div>
     @title = doc.xpath("//div[@id=\"title\"]/a").text
     @article_url = doc.xpath("//div[@id=\"title\"]/a").attr("href").value
 
@@ -49,27 +48,34 @@ class GScholarPub
     # <div class="g-section">
     #   <div class="cit-dt">Authors</div>
     #   <div class="cit-dd"> First Author,  Second Author,  Third G Author</div>
-    # </div>
-    all_auth = table_pick.call('Authors')
-    @authors = all_auth.split(/,/).map { |a| a.split(' ') }
-
+    @authors = table_pick.call('Authors').split(/,/).map { |a| a.split(' ') }
+    @date = Date.strptime(table_pick.call('Publication date'), '%Y/%m/%d')
     @journal = table_pick.call('Journal name')
     @volume = table_pick.call('Volume')
     @issue = table_pick.call('Issue')
     @pages = table_pick.call('Pages')
+    @publisher = table_pick.call('Publisher')
     @description = table_pick.call('Description')
 
     ## Chart HTML:
     # <div class="cit-dd">
     #   <img src="..." height="90" width="475" alt="">
-    # </div>
     @chart_url = doc.xpath("//div[contains(@class,'cit-dd')]/img"\
                           ).attr("src").value
 
-    #
-    # @article_url = doc.xpath("//div[contains(@class, 'cit-dd')]"\
-    #               "/a[contains(@class, 'cit-dark-link')]"\
-    #               )[1].attributes["href"].value
+    # TODO: capture scholar's main google-scholar page
+    # <div class="g-section cit-dgb">
+    #   <div style="padding:0.3em 0.6em;">
+    #     <table style="width:100%">
+    #       <tbody>
+    #         <tr>
+    #           <td>
+    #             <a href="/citations?user=6WjiSOwAAAAJ&amp;hl=en&amp;authuser=1" class="cit-dark-link">« Back to list</a>
+    #             &nbsp;&nbsp;<...input buttons...>
+    #           </td><td style="text-align:right;"></td></tr></tbody></table></div></div>
+
+    # @gscholar_url = doc.xpath("//div[contains(@id,'scholar_sec')]/div/a"\
+    #                          ).text[/\d+/].to_i
   end
 
 end
