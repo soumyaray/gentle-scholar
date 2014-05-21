@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        =  'gscholar'
-  s.version     =  '0.2.0'
+  s.version     =  '0.2.1'
   s.add_runtime_dependency 'nokogiri', '>= 1.6.2'
   s.add_runtime_dependency 'typhoeus', '>= 0.6.8'
   s.date        =  '2013-05-18'

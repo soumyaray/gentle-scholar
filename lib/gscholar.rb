@@ -6,10 +6,11 @@ class GScholarPub
   GSCHOLAR_CIT_URL = \
       "http://scholar.google.com/citations?view_op=view_citation&hl=en"
 
-  attr_reader :title, :cites, :cites_url, :chart_url, :article_url, \
-               :authors, :date, :journal, :volume, :issue, :pages, :publisher, \
+  attr_reader :title, :cites, :cites_url, :chart_url, :article_url,
+               :authors, :date, :journal, :volume, :issue, :pages, :publisher,
                :description, :gscholar_url
-  attr_reader :doc                  # TODO only for development, testing modes
+  # TODO: @doc only for development, testing modes
+  attr_reader :doc
 
   # example scholar_pub_id = 6WjiSOwAAAAJ:u5HHmVD_uO8C
   def initialize(scholar_pub_id)
@@ -37,8 +38,8 @@ class GScholarPub
     # <div id="title">
     #   <a style="text-decoration:none" href="http://linktoarticle" >
     #      Paper Title
-    @title = doc.xpath("//div[@id=\"title\"]/a").text
-    @article_url = doc.xpath("//div[@id=\"title\"]/a").attr("href").value
+    @title = doc.xpath('//div[@id="title"]/a').text
+    @article_url = doc.xpath('//div[@id="title"]/a').attr('href').value
 
     # lambda function gets text from right column given name in left column
     table_pick = lambda do |name|
@@ -60,7 +61,7 @@ class GScholarPub
     ## Chart HTML:
     # <div class="cit-dd">
     #   <img src="..." height="90" width="475" alt="">
-    @chart_url = doc.xpath("//div[contains(@class,'cit-dd')]/img"\
+    @chart_url = doc.xpath("//div[contains(@class,'cit-dd')]/img"
                           ).attr("src").value
 
     # TODO: capture scholar's main google-scholar page
