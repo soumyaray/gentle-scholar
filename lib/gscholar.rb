@@ -3,8 +3,9 @@ require 'nokogiri'
 require 'date'
 
 class GScholarPub
-  GSCHOLAR_CIT_URL = \
-      "http://scholar.google.com/citations?view_op=view_citation&hl=en"
+  GSCHOLAR_HOST_URL = 'http://scholar.google.com'
+  GSCHOLAR_CIT_URL = 
+      'http://scholar.google.com/citations?view_op=view_citation&hl=en'
 
   attr_reader :title, :cites, :cites_url, :chart_url, :article_url,
                :authors, :date, :journal, :volume, :issue, :pages, :publisher,
@@ -71,16 +72,11 @@ class GScholarPub
     #       <tbody>
     #         <tr>
     #           <td>
-    #             <a href="/citations?user=6WjiSOwAAAAJ&amp;hl=en&amp;authuser=1" class="cit-dark-link">« Back to list</a>
+    #             <a href="/citations?user=6WjiSOwAAAAJ&...">« Back to list</a>
     #             &nbsp;&nbsp;<...input buttons...>
-    #           </td><td style="text-align:right;"></td></tr></tbody></table></div></div>
+    #           </td><td style="..."></td></tr></tbody></table></div></div>
 
-    # @gscholar_url = doc.xpath("//div[contains(@id,'scholar_sec')]/div/a"\
-    #                          ).text[/\d+/].to_i
+    @gscholar_url = GSCHOLAR_HOST_URL + doc.xpath("//div[contains(@class,'g-section cit-dgb')]/div/table/tr/td/a").attr('href').value
   end
 
 end
-
-# load 'lib/gscholar.rb'
-# pub = GScholarPub.new("6WjiSOwAAAAJ:u5HHmVD_uO8C")
-# (pub.methods - Object.methods).each {|m| if m!=:doc then p m.to_s+": "+pub.send(m).to_s end}
