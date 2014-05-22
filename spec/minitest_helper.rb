@@ -1,4 +1,4 @@
-require '../lib/publication.rb'
+require './lib/publication.rb'
 
 SEC_PAPER = GScholarPub.new('6WjiSOwAAAAJ:u5HHmVD_uO8C')
 

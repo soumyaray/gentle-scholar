@@ -1,6 +1,6 @@
 require 'minitest/autorun'
 require 'minitest/rg'
-require './minitest_helper.rb'
+require './spec/minitest_helper.rb'
 
 describe 'Publication', 'A single publication listing' do
 
