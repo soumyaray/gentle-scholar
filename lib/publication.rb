@@ -18,6 +18,15 @@ class GScholarPub
   # TODO: @doc only for development, testing modes
   attr_reader :doc
 
+  SCAN_STR = {
+    gscholar_url:
+      "//div[contains(@class,'g-section cit-dgb')]/div/table/tr/td/a",
+    cites: "//div[contains(@id,'scholar_sec')]/div/a",
+    title: '//div[@id="title"]/a',
+    article_url: '//div[@id="title"]/a',
+    chart_url: '//div[contains(@class,"cit-dd")]/img'
+  }
+
   def initialize(scholar_pub_id)
     auth_id, pub_id = scholar_pub_id.split(/:/)
     url = GSCHOLAR_CIT_URL + '&user=' + auth_id \
@@ -30,16 +39,14 @@ class GScholarPub
     #   <div class="cit-dt">Total citations</div>
     #   <div class="cit-dd">
     #     <a class="cit-dark-link" href="...">Cited by 15</a>
-    @cites = @doc.xpath("//div[contains(@id,'scholar_sec')]/div/a"
-                      ).text[/\d+/].to_i
-    @cites_url = @doc.xpath("//div[contains(@id,'scholar_sec')]/div/a"
-                          )[0].attributes['href'].value
+    @cites = @doc.xpath(SCAN_STR[:cites]).text[/\d+/].to_i
+    @cites_url = @doc.xpath(SCAN_STR[:cites])[0].attributes['href'].value
 
     # <div id="title">
     #   <a style="text-decoration:none" href="http://linktoarticle" >
     #      Paper Title
-    @title = @doc.xpath('//div[@id="title"]/a').text
-    @article_url = @doc.xpath('//div[@id="title"]/a').attr('href').value
+    @title = @doc.xpath(SCAN_STR[:title]).text
+    @article_url = @doc.xpath(SCAN_STR[:article_url]).attr('href').value
 
     # lambda function gets text from right column given name in left column
     table_pick = lambda do |name|
@@ -61,10 +68,8 @@ class GScholarPub
     ## Chart HTML:
     # <div class="cit-dd">
     #   <img src="..." height="90" width="475" alt="">
-    @chart_url = @doc.xpath("//div[contains(@class,'cit-dd')]/img")
-      .attr('src').value
+    @chart_url = @doc.xpath(SCAN_STR[:chart_url]).attr('src').value
 
-    # TODO: capture scholar's main google-scholar page
     # <div class="g-section cit-dgb">
     #   <div style="padding:0.3em 0.6em;">
     #     <table style="width:100%">
@@ -74,13 +79,11 @@ class GScholarPub
     #             <a href="/citations?user=6WjiSOwAAAAJ&..."> Back to list</a>
     #             &nbsp;&nbsp;<...input buttons...>
     #           </td><td style="..."></td></tr></tbody></table></div></div>
-
-    @gscholar_url = GSCHOLAR_HOST_URL + @doc.xpath(
-                "//div[contains(@class,'g-section cit-dgb')]/div/table/tr/td/a"
-                                                  ).attr('href').value
+    @gscholar_url = GSCHOLAR_HOST_URL + extract_html(
+                                  SCAN_STR[:gscholar_url]).attr('href').value
   end
 
-  def extract_attr(scan_str)
-    @doc.xpath(scan_str).attr('href').value
+  def extract_html(scan_str)
+    @doc.xpath(scan_str)
   end
 end
