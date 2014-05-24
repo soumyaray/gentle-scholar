@@ -27,6 +27,17 @@ class GScholarPub
     chart_url: '//div[contains(@class,"cit-dd")]/img'
   }
 
+  TABLE_ATTR = {
+    authors: 'Authors',
+    date: 'Publication date',
+    journal: 'Journal name',
+    volume: 'Volume',
+    issue: 'Issue',
+    pages: 'Pages',
+    publisher: 'Publisher',
+    description: 'Description'
+  }
+
   def initialize(scholar_pub_id)
     auth_id, pub_id = scholar_pub_id.split(/:/)
     url = GSCHOLAR_CIT_URL + '&user=' + auth_id \
@@ -34,28 +45,17 @@ class GScholarPub
     res = Typhoeus::Request.new(url).run
     @doc = Nokogiri::HTML(res.response_body)
 
-    ## Cited-by HTML:
-    # <div class="g-section" id="scholar_sec">
-    #   <div class="cit-dt">Total citations</div>
-    #   <div class="cit-dd">
-    #     <a class="cit-dark-link" href="...">Cited by 15</a>
     @cites = @doc.xpath(SCAN_STR[:cites]).text[/\d+/].to_i
     @cites_url = @doc.xpath(SCAN_STR[:cites])[0].attributes['href'].value
 
-    # <div id="title">
-    #   <a style="text-decoration:none" href="http://linktoarticle" >
-    #      Paper Title
     @title = @doc.xpath(SCAN_STR[:title]).text
     @article_url = @doc.xpath(SCAN_STR[:article_url]).attr('href').value
 
-    # lambda function gets text from right column given name in left column
+    # lambda gets text from right html column given name in left column
     table_pick = lambda do |name|
       @doc.xpath("//div[starts-with(.,'#{name}')]")[0].children[1].text
     end
 
-    # <div class="g-section">
-    #   <div class="cit-dt">Authors</div>
-    #   <div class="cit-dd"> First Author, Second Author, Third G Author</div>
     @authors = table_pick.call('Authors').split(/,/).map { |a| a.split(' ') }
     @date = Date.strptime(table_pick.call('Publication date'), '%Y/%m/%d')
     @journal = table_pick.call('Journal name')
@@ -65,20 +65,8 @@ class GScholarPub
     @publisher = table_pick.call('Publisher')
     @description = table_pick.call('Description')
 
-    ## Chart HTML:
-    # <div class="cit-dd">
-    #   <img src="..." height="90" width="475" alt="">
     @chart_url = @doc.xpath(SCAN_STR[:chart_url]).attr('src').value
 
-    # <div class="g-section cit-dgb">
-    #   <div style="padding:0.3em 0.6em;">
-    #     <table style="width:100%">
-    #       <tbody>
-    #         <tr>
-    #           <td>
-    #             <a href="/citations?user=6WjiSOwAAAAJ&..."> Back to list</a>
-    #             &nbsp;&nbsp;<...input buttons...>
-    #           </td><td style="..."></td></tr></tbody></table></div></div>
     @gscholar_url = GSCHOLAR_HOST_URL + extract_html(
                                   SCAN_STR[:gscholar_url]).attr('href').value
   end
