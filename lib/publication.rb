@@ -45,33 +45,34 @@ class GScholarPub
     res = Typhoeus::Request.new(url).run
     @doc = Nokogiri::HTML(res.response_body)
 
+    extract_html_elements
+    extract_html_table
+  end
+
+  def extract_html_elements
     @cites = @doc.xpath(SCAN_STR[:cites]).text[/\d+/].to_i
     @cites_url = @doc.xpath(SCAN_STR[:cites])[0].attributes['href'].value
 
     @title = @doc.xpath(SCAN_STR[:title]).text
     @article_url = @doc.xpath(SCAN_STR[:article_url]).attr('href').value
 
+    @chart_url = @doc.xpath(SCAN_STR[:chart_url]).attr('src').value
+
+    @gscholar_url = GSCHOLAR_HOST_URL + @doc.xpath(
+                                  SCAN_STR[:gscholar_url]).attr('href').value
+  end
+
+  def extract_html_table
     # lambda gets text from right html column given name in left column
     table_pick = lambda do |name|
       @doc.xpath("//div[starts-with(.,'#{name}')]")[0].children[1].text
     end
 
-    @authors = table_pick.call('Authors').split(/,/).map { |a| a.split(' ') }
-    @date = Date.strptime(table_pick.call('Publication date'), '%Y/%m/%d')
-    @journal = table_pick.call('Journal name')
-    @volume = table_pick.call('Volume')
-    @issue = table_pick.call('Issue')
-    @pages = table_pick.call('Pages')
-    @publisher = table_pick.call('Publisher')
-    @description = table_pick.call('Description')
+    TABLE_ATTR.each do |k, v|
+      instance_variable_set("@#{k}", table_pick.call(v))
+    end
 
-    @chart_url = @doc.xpath(SCAN_STR[:chart_url]).attr('src').value
-
-    @gscholar_url = GSCHOLAR_HOST_URL + extract_html(
-                                  SCAN_STR[:gscholar_url]).attr('href').value
-  end
-
-  def extract_html(scan_str)
-    @doc.xpath(scan_str)
+    @authors = @authors.split(/,/).map { |a| a.split(' ') }
+    @date = Date.strptime(@date, '%Y/%m/%d')
   end
 end
