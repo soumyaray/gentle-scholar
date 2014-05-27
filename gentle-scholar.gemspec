@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        =  'gentle-scholar'
-  s.version     =  '1.0.1'
+  s.version     =  '1.0.2'
   s.add_development_dependency 'minitest'
   s.add_development_dependency 'minitest-rg'
   s.add_runtime_dependency 'nokogiri', '>= 1.6.2'
