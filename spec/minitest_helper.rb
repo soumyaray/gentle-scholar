@@ -1,6 +1,6 @@
-require './lib/publication.rb'
+require './lib/gentle-scholar.rb'
 
-SEC_PAPER = GScholarPub.new('6WjiSOwAAAAJ:u5HHmVD_uO8C')
+SEC_PAPER = GentleScholar::Publication.new('6WjiSOwAAAAJ:u5HHmVD_uO8C')
 
 ## Load publication manually from irb/pry as follows:
 # load 'lib/publication.rb'
