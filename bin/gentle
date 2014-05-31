@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require 'gentle-scholar'
+
+pub = GentleScholar::Publication.new('6WjiSOwAAAAJ:9yKSN-GCB0IC')
+
+puts 'Publication Details'
+puts "Title: #{pub.title}"
