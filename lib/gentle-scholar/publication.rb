@@ -8,18 +8,17 @@ module GentleScholar
   # This class loads a single publication from Google scholar and returns
   # all its attributes, including dynamic attributes like number of citations
   class Publication
-    GSCHOLAR_HOST_URL = 'http://scholar.google.com'
-    GSCHOLAR_CIT_URL =
-        'http://scholar.google.com/citations?view_op=view_citation&hl=en'
+    GS_HOST_URL  = 'http://scholar.google.com'
+    GS_CIT_URL   = "#{GS_HOST_URL}/citations?view_op=view_citation&hl=en"
 
     SCAN_STR = {
-      gscholar_url:
-        "//div[contains(@class,'g-section cit-dgb')]/div/table/tr/td/a",
-      cites: "//div[contains(@id,'scholar_sec')]/div/a",
-      cites_url: "//div[contains(@id,'scholar_sec')]/div/a",
-      title: '//div[@id="title"]/a',
-      article_url: '//div[@id="title"]/a',
-      chart_url: '//div[contains(@class,"cit-dd")]/img'
+      gscholar_url:  "//div[contains(@class,'g-section cit-dgb')]"\
+                                   "/div/table/tr/td/a",
+      cites:         "//div[contains(@id,'scholar_sec')]/div/a",
+      cites_url:     "//div[contains(@id,'scholar_sec')]/div/a",
+      title:         '//div[@id="title"]/a',
+      article_url:   '//div[@id="title"]/a',
+      chart_url:     '//div[contains(@class,"cit-dd")]/img'
     }
 
     SCAN_LAMBDAS = {
@@ -28,7 +27,7 @@ module GentleScholar
       title:         ->(x) { x.text },
       article_url:   ->(x) { x.attr('href').value },
       chart_url:     ->(x) { x.attr('src').value },
-      gscholar_url:  ->(x) { GSCHOLAR_HOST_URL + x.attr('href').value }
+      gscholar_url:  ->(x) { GS_HOST_URL + x.attr('href').value }
     }
 
     TABLE_ATTR = {
@@ -49,8 +48,8 @@ module GentleScholar
 
     def self.get_from_http(scholar_pub_id)
       auth_id, pub_id = scholar_pub_id.split(/:/)
-      url = GSCHOLAR_CIT_URL + '&user=' + auth_id \
-                             + '&citation_for_view=' + auth_id + ':' + pub_id
+      url = GS_CIT_URL + '&user=' + auth_id \
+                       + '&citation_for_view=' + auth_id + ':' + pub_id
       res = Typhoeus::Request.new(url).run
       doc = Nokogiri::HTML(res.response_body)
 
@@ -59,7 +58,11 @@ module GentleScholar
 
     def self.extract_html_elements(doc)
       xpath = Hash[SCAN_STR.map { |elem, path| [elem, doc.xpath(path)] }]
-      Hash[SCAN_LAMBDAS.map { |key, lam| [key, lam.call(xpath[key])] }]
+      elements = SCAN_LAMBDAS.map do |key, lam|
+        if xpath[key].any? then [key, lam.call(xpath[key])] end
+      end
+
+      Hash[elements.compact]
     end
 
     def self.extract_html_table(doc)

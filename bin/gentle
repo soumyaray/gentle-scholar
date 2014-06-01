@@ -5,5 +5,6 @@ require 'gentle-scholar'
 pub = GentleScholar::Publication.get_from_http('6WjiSOwAAAAJ:9yKSN-GCB0IC')
 
 puts 'Publication Details'
-puts "Title: #{pub.title}"
-puts "Title: #{pub.authors}"
+pub.each do |field, data|
+  puts "#{field}: #{pub[field]}"
+end

@@ -1,3 +1,3 @@
 module GentleScholar
-  VERSION = '2.0.0a'
+  VERSION = '2.0.0'
 end
