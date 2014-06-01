@@ -2,7 +2,8 @@
 
 require 'gentle-scholar'
 
-pub = GentleScholar::Publication.new('6WjiSOwAAAAJ:9yKSN-GCB0IC')
+pub = GentleScholar::Publication.get_from_http('6WjiSOwAAAAJ:9yKSN-GCB0IC')
 
 puts 'Publication Details'
 puts "Title: #{pub.title}"
+puts "Title: #{pub.authors}"
