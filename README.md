@@ -23,20 +23,26 @@ Given a google scholar article such as:
 
 Retrieve information by copying the author and article ID from the URL:
 
-    sec_paper = GScholarPub.new('6WjiSOwAAAAJ:u5HHmVD_uO8C')
+    pub = GentleScholar::Publication.get_from_http('6WjiSOwAAAAJ:9yKSN-GCB0IC')
 
 This returns:
 
-    #<GScholarPub:0x007fb0bc18df70
-      @article_url="http://pubsonline.informs.org/doi/abs/10.1287/isre.1100.0340",
-      @authors=[["Soumya", "Ray"], ["Sung", "S", "Kim"], ["James", "G", "Morris"]],
-      @chart_url="http://www.google.com/chart?chs=475x90&cht=bvs&chf=bg,s,e8f4f7&chco=1111cc&chbh=r,2.0,0.0&chxt=x,y&chxr=1,0,5,5&chd=t:100.0,80.0,100.0
-      @cites=14,
-      @cites_url="http://scholar.google.com/scholar?oi=bibs&hl=en&oe=ASCII&cites=11777343089817755068",
-      @description="The highly competitive and rapidly changing market for online services is becoming increasingly effective at locking users in through
-      @issue="1",
-      @journal="Information Systems Research",
-      @pages="197-213",
-      @title="Research Note\u0097Online Users' Switching Costs: Their Nature and Formation",
-      @volume="23"
-    >
+    => {:cites=>14,
+     :cites_url=>
+      "http://scholar.google.com/scholar?oi=bibs&hl=en&oe=ASCII&cites=11777343089817755068",
+     :title=>
+      "Research Note\u0097Online Users' Switching Costs: Their Nature and Formation",
+     :article_url=>"http://pubsonline.informs.org/doi/abs/10.1287/isre.1100.0340",
+     :chart_url=>
+      "http://www.google.com/chart?chs=475x90&cht=bvs&chf=bg,s,e8f4f7&chco=1111cc&chbh=r,2.0,0.0&chxt=x,y&chxr=1,0,5,5&chd=t:100.0,80.0,100.0&chxl=0:|2012|2013|2014",
+     :gscholar_url=>
+      "http://scholar.google.com/citations?user=6WjiSOwAAAAJ&hl=en&oe=ASCII",
+     :authors=>[["Soumya", "Ray"], ["Sung", "S", "Kim"], ["James", "G", "Morris"]],
+     :date=>#<Date: 2012-03-01 ((2455988j,0s,0n),+0s,2299161j)>,
+     :journal=>"Information Systems Research",
+     :volume=>"23",
+     :issue=>"1",
+     :pages=>"197-213",
+     :publisher=>"INFORMS",
+     :description=>
+      "The highly competitive and rapidly changing market for online services is becoming increasingly effective at locking users in through the coercive effects of switching costs. Although the information systems field increasingly recognizes that switching costs plays a big part in enforcing loyalty, little is known about what factors users regard as switching costs or why they perceive these costs. Consequently, it is hard for online services to know what lock-in strategies to use and when to apply them. We address this problem by first  ..."}
