@@ -2,7 +2,11 @@
 
 require 'gentle-scholar'
 
-pub = GentleScholar::Publication.get_from_http('6WjiSOwAAAAJ:9yKSN-GCB0IC')
+if (ARGV.count == 0) || (ARGV[0].split(/:/).count != 2)
+  fail ArgumentError, "Usage: gentle [scholarID:paperID]\n"
+end
+
+pub = GentleScholar::Publication.get_from_http(ARGV[0])
 
 puts 'Publication Details'
 pub.each do |field, data|
