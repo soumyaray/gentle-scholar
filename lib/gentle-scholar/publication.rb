@@ -13,7 +13,7 @@ module GentleScholar
 
     SCAN_STR = {
       gscholar_url:  "//div[contains(@class,'g-section cit-dgb')]"\
-                                   "/div/table/tr/td/a",
+                                   '/div/table/tr/td/a',
       cites:         "//div[contains(@id,'scholar_sec')]/div/a",
       cites_url:     "//div[contains(@id,'scholar_sec')]/div/a",
       title:         '//div[@id="title"]/a',
@@ -53,28 +53,37 @@ module GentleScholar
       res = Typhoeus::Request.new(url).run
       doc = Nokogiri::HTML(res.response_body)
 
+      extract_from_document(doc)
+    end
+
+    def self.extract_from_document(doc)
       extract_html_elements(doc).merge(extract_html_table(doc))
     end
 
     def self.extract_html_elements(doc)
       xpath = Hash[SCAN_STR.map { |elem, path| [elem, doc.xpath(path)] }]
       elements = SCAN_LAMBDAS.map do |key, lam|
-        if xpath[key].any? then [key, lam.call(xpath[key])] end
+        [key, lam.call(xpath[key])] if xpath[key].any?
       end
 
       Hash[elements.compact]
     end
 
     def self.extract_html_table(doc)
-      # lambda gets text from right html column given name in left column
-      table_extract = lambda do |name|
-        doc.xpath("//div[starts-with(.,'#{name}')]")[0].children[1].text
+      elements_a = TABLE_ATTR.map do |k, v|
+        extract = table_extract(v, doc)
+        extract ? [k, extract] : nil
       end
+      elements = Hash[elements_a.reject  { |e| !e }]
 
-      elements = Hash[TABLE_ATTR.map { |k, v| [k, table_extract.call(v)] }]
       elements.merge(
         Hash[TABLE_LAMBDAS.map { |key, lam| [key, lam.call(elements[key])] }]
       )
+    end
+
+    def self.table_extract(name, doc)
+      elem = doc.xpath("//div[starts-with(.,'#{name}')]")[0]
+      elem.children[1].text if elem
     end
   end
 end
