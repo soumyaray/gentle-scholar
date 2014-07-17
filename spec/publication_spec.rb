@@ -28,15 +28,15 @@ describe 'Publication', 'A single publication listing' do
     end
 
     it 'has some url for listing cites' do
-      @sec_paper[:cites_url].must_match /http:\/\/.*/
+      @sec_paper[:cites_url].must_match %r|http://.*|
     end
 
     it 'has some url for citations chart' do
-      @sec_paper[:chart_url].must_match /http:\/\/.*/
+      @sec_paper[:chart_url].must_match %r|http://.*|
     end
 
-    it 'has some url for the pulished article' do
-      @sec_paper[:article_url].must_match /http:\/\/.*/
+    it 'has some url for the published article' do
+      @sec_paper[:article_url].must_match %r|http://.*|
     end
 
     it 'has the right author(s) (as nested array)' do
@@ -79,11 +79,22 @@ describe 'Publication', 'A single publication listing' do
       @unpub_paper = GentleScholar::Publication.extract_from_document(doc)
     end
 
-    it 'has the right title' do
+    it 'has the right basic information' do
       @unpub_paper[:title].must_equal 'The Central Role of Engagement in Online Communities'
+      @unpub_paper[:article_url].must_match(%r|http://.*|)
+      @unpub_paper[:gscholar_url].must_match(/citations/)
+      @unpub_paper[:authors].must_equal [['Soumya', 'Ray'], ['Sung', 'S', 'Kim'], ['James', 'G', 'Morris']]
+      @unpub_paper[:date].must_be_instance_of Date
+      @unpub_paper[:journal].must_equal 'Information Systems Research'
+      @unpub_paper[:publisher].must_equal 'INFORMS'
     end
 
-
+    it 'must not produce error for non-existing information' do
+      @unpub_paper[:volume].must_be_nil
+      @unpub_paper[:issue].must_be_nil
+      @unpub_paper[:pages].must_be_nil
+      @unpub_paper[:chart_url].must_be_nil
+    end
   end
 
 end
