@@ -15,7 +15,7 @@ describe 'Publication', 'A single publication listing' do
     # end
 
     before do
-      @sec_paper = SEC_PAPER
+      @sec_paper = SEC_RESULTS
     end
 
     it 'has the right title' do
@@ -68,8 +68,21 @@ describe 'Publication', 'A single publication listing' do
     end
 
     it 'has some url for the main citations apage' do
-      @sec_paper[:gscholar_url].must_match /citations/
+      @sec_paper[:gscholar_url].must_match(/citations/)
     end
+
+  end
+
+  describe 'when it is an unpublished paper (missing attributes)' do
+    before do
+      doc = Nokogiri::HTML(UNPUB_PAPER)
+      @unpub_paper = GentleScholar::Publication.extract_from_document(doc)
+    end
+
+    it 'has the right title' do
+      @unpub_paper[:title].must_equal 'The Central Role of Engagement in Online Communities'
+    end
+
 
   end
 

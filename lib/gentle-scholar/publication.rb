@@ -53,6 +53,10 @@ module GentleScholar
       res = Typhoeus::Request.new(url).run
       doc = Nokogiri::HTML(res.response_body)
 
+      extract_from_document(doc)
+    end
+
+    def self.extract_from_document(doc)
       extract_html_elements(doc).merge(extract_html_table(doc))
     end
 
