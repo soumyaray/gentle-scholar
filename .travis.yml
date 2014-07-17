@@ -7,3 +7,4 @@ rvm:
   - jruby-19mode
 only:
   - master
+  - /^rel-.*$/
