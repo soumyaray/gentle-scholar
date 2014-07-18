@@ -74,7 +74,8 @@ module GentleScholar
         extract = table_extract(v, doc)
         extract ? [k, extract] : nil
       end
-      elements = Hash[elements_a.reject  { |e| !e }]
+
+      elements = Hash[elements_a.compact]
 
       elements.merge(
         Hash[TABLE_LAMBDAS.map { |key, lam| [key, lam.call(elements[key])] }]
