@@ -14,8 +14,8 @@ module GentleScholar
     SCAN_STR = {
       gscholar_url:  "//div[contains(@class,'g-section cit-dgb')]"\
                                    '/div/table/tr/td/a',
-      cites:         "//div[contains(@id,'scholar_sec')]/div/a",
-      cites_url:     "//div[contains(@id,'scholar_sec')]/div/a",
+      cites:         "//div[contains(@class,'gsc_value')]/div/a",  # scholar_sec
+      cites_url:     "//div[contains(@class,'gsc_value')]/div/a",
       title:         '//div[@id="title"]/a',
       article_url:   '//div[@id="title"]/a',
       chart_url:     '//div[contains(@class,"cit-dd")]/img'
