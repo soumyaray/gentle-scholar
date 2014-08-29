@@ -46,6 +46,14 @@ module GentleScholar
       date:     ->(x) { Date.strptime(x, '%Y/%m/%d') }
     }
 
+    def self.get_html(scholar_pub_id)
+      auth_id, pub_id = scholar_pub_id.split(/:/)
+      url = GS_CIT_URL + '&user=' + auth_id \
+                       + '&citation_for_view=' + auth_id + ':' + pub_id
+      res = Typhoeus::Request.new(url).run
+      doc = Nokogiri::HTML(res.response_body)
+    end
+
     def self.get_from_http(scholar_pub_id)
       auth_id, pub_id = scholar_pub_id.split(/:/)
       url = GS_CIT_URL + '&user=' + auth_id \
@@ -83,8 +91,13 @@ module GentleScholar
     end
 
     def self.table_extract(name, doc)
-      elem = doc.xpath("//div[starts-with(.,'#{name}')]")[0]
-      elem.children[1].text if elem
+      elem = doc.xpath("//div[@class='gs_scl' and starts-with(.,'#{name}')]")
+      #elem = doc.xpath("//div[starts-with(.,'#{name}')]")[0]
+      begin
+        elem.children[1].text if elem
+      rescue
+        puts "ERROR PROCESSING: #{name}"
+      end
     end
   end
 end
