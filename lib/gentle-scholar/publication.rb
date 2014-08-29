@@ -16,8 +16,8 @@ module GentleScholar
                                    '/div/table/tr/td/a',
       cites:         "//div[contains(@class,'gsc_value')]/div/a",  # scholar_sec
       cites_url:     "//div[contains(@class,'gsc_value')]/div/a",
-      title:         '//div[@id="title"]/a',
-      article_url:   '//div[@id="title"]/a',
+      title:         '//div[@id="gsc_title"]/a',
+      article_url:   '//div[@id="gsc_title"]/a',
       chart_url:     '//div[contains(@class,"cit-dd")]/img'
     }
 
