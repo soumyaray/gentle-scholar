@@ -12,13 +12,15 @@ module GentleScholar
     GS_CIT_URL   = "#{GS_HOST_URL}/citations?view_op=view_citation&hl=en"
 
     SCAN_STR = {
-      gscholar_url:  "//div[contains(@class,'g-section cit-dgb')]"\
-                                   '/div/table/tr/td/a',
+
       cites:         "//div[contains(@class,'gsc_value')]/div/a",  # scholar_sec
       cites_url:     "//div[contains(@class,'gsc_value')]/div/a",
       title:         '//div[@id="gsc_title"]/a',
       article_url:   '//div[@id="gsc_title"]/a',
-      chart_url:     '//div[contains(@class,"cit-dd")]/img'
+      chart_url:     '//div[contains(@class,"cit-dd")]/img',
+      # gscholar_url:  "//div[contains(@class,'g-section cit-dgb')]"\
+      #                        '/div/table/tr/td/a'
+      gscholar_url:  '//div[@id="gsc_lnv_ui"]/div/a'
     }
 
     SCAN_LAMBDAS = {
