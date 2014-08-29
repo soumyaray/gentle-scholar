@@ -33,7 +33,7 @@ module GentleScholar
     TABLE_ATTR = {
       authors: 'Authors',
       date: 'Publication date',
-      journal: 'Journal name',
+      journal: 'Journal',
       volume: 'Volume',
       issue: 'Issue',
       pages: 'Pages',
@@ -92,7 +92,6 @@ module GentleScholar
 
     def self.table_extract(name, doc)
       elem = doc.xpath("//div[@class='gs_scl' and starts-with(.,'#{name}')]")
-      #elem = doc.xpath("//div[starts-with(.,'#{name}')]")[0]
       begin
         elem.children[1].text if elem
       rescue
