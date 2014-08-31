@@ -31,8 +31,13 @@ describe 'Publication', 'A single publication listing' do
       @sec_paper[:cites_url].must_match %r|http://.*|
     end
 
-    it 'has some url for citations chart' do
-      @sec_paper[:chart_url].must_match %r|http://.*|
+    it 'should have citation trend information' do
+      @sec_paper[:trend].must_be_kind_of Hash
+      @sec_paper[:trend].size.must_be :>=, 4
+      @sec_paper[:trend].map do |k, v|
+        k.must_be_kind_of Symbol
+        v.must_be_kind_of Numeric
+      end
     end
 
     it 'has some url for the published article' do
