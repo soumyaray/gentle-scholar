@@ -101,8 +101,10 @@ module GentleScholar
 
     def self.extract_trend(doc)
       years = doc.xpath('//span[@class="gsc_g_t"]').children.map { |c| c.text }
-      num = doc.xpath('//span[@class="gsc_g_al"]').children.map { |c| c.text }
-      Hash[years.zip(num)]
+      years_sym = years.map { |y| y.to_sym }
+      count = doc.xpath('//span[@class="gsc_g_al"]').children.map { |c| c.text }
+      count_i = count.map { |c| c.to_i }
+      Hash[years_sym.zip(count_i)]
     end
   end
 end
