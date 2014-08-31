@@ -12,15 +12,15 @@ module GentleScholar
     GS_CIT_URL   = "#{GS_HOST_URL}/citations?view_op=view_citation&hl=en"
 
     SCAN_STR = {
-
-      cites:         "//div[contains(@class,'gsc_value')]/div/a",  # scholar_sec
-      cites_url:     "//div[contains(@class,'gsc_value')]/div/a",
+      cites:         '//div[contains(@class,"gsc_value")]/div/a',  # scholar_sec
+      cites_url:     '//div[contains(@class,"gsc_value")]/div/a',
       title:         '//div[@id="gsc_title"]/a',
       article_url:   '//div[@id="gsc_title"]/a',
-      chart_url:     '//div[contains(@class,"cit-dd")]/img',
+      trend:         '//div[@id="gsc_graph"]',
+      gscholar_url:  '//div[@id="gsc_lnv_ui"]/div/a'
       # gscholar_url:  "//div[contains(@class,'g-section cit-dgb')]"\
       #                        '/div/table/tr/td/a'
-      gscholar_url:  '//div[@id="gsc_lnv_ui"]/div/a'
+      #chart_url:     '//div[contains(@class,"cit-dd")]/img',
     }
 
     SCAN_LAMBDAS = {
@@ -28,7 +28,9 @@ module GentleScholar
       cites_url:     ->(x) { x[0].attributes['href'].value },
       title:         ->(x) { x.text },
       article_url:   ->(x) { x.attr('href').value },
-      chart_url:     ->(x) { x.attr('src').value },
+      #chart_url:     ->(x) { x.attr('src').value },
+      trend:         ->(graph) { extract_trend(graph) },
+
       gscholar_url:  ->(x) { GS_HOST_URL + x.attr('href').value }
     }
 
@@ -48,21 +50,16 @@ module GentleScholar
       date:     ->(x) { Date.strptime(x, '%Y/%m/%d') }
     }
 
-    def self.get_html(scholar_pub_id)
+    def self.get_pub_http(scholar_pub_id)
       auth_id, pub_id = scholar_pub_id.split(/:/)
       url = GS_CIT_URL + '&user=' + auth_id \
                        + '&citation_for_view=' + auth_id + ':' + pub_id
       res = Typhoeus::Request.new(url).run
-      doc = Nokogiri::HTML(res.response_body)
+      Nokogiri::HTML(res.response_body)
     end
 
-    def self.get_from_http(scholar_pub_id)
-      auth_id, pub_id = scholar_pub_id.split(/:/)
-      url = GS_CIT_URL + '&user=' + auth_id \
-                       + '&citation_for_view=' + auth_id + ':' + pub_id
-      res = Typhoeus::Request.new(url).run
-      doc = Nokogiri::HTML(res.response_body)
-
+    def self.extract_from_http(scholar_pub_id)
+      doc = get_pub_http(scholar_pub_id)
       extract_from_document(doc)
     end
 
@@ -81,7 +78,7 @@ module GentleScholar
 
     def self.extract_html_table(doc)
       elements_a = TABLE_ATTR.map do |k, v|
-        extract = table_extract(v, doc)
+        extract = extract_table_item(v, doc)
         extract ? [k, extract] : nil
       end
 
@@ -92,13 +89,20 @@ module GentleScholar
       )
     end
 
-    def self.table_extract(name, doc)
+    def self.extract_table_item(name, doc)
       elem = doc.xpath("//div[@class='gs_scl' and starts-with(.,'#{name}')]")
       begin
         elem.children[1].text if elem
-      rescue
-        puts "ERROR PROCESSING: #{name}"
+      rescue e
+        STDERR.puts "ERROR PROCESSING: #{name}"
+        raise e
       end
+    end
+
+    def self.extract_trend(doc)
+      years = doc.xpath('//span[@class="gsc_g_t"]').children.map { |c| c.text }
+      num = doc.xpath('//span[@class="gsc_g_al"]').children.map { |c| c.text }
+      Hash[years.zip(num)]
     end
   end
 end
