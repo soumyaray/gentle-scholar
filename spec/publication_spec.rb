@@ -28,7 +28,7 @@ describe 'Publication', 'A single publication listing' do
     end
 
     it 'has some url for listing cites' do
-      @sec_paper[:cites_url].must_match %r|http://.*|
+      @sec_paper[:cites_url].must_match %r{http://.*}
     end
 
     it 'should have citation trend information' do
@@ -41,11 +41,12 @@ describe 'Publication', 'A single publication listing' do
     end
 
     it 'has some url for the published article' do
-      @sec_paper[:article_url].must_match %r|http://.*|
+      @sec_paper[:article_url].must_match %r{http://.*}
     end
 
     it 'has the right author(s) (as nested array)' do
-      @sec_paper[:authors].must_equal [['Soumya', 'Ray'], ['Terence', 'Ow'], ['Sung', 'S', 'Kim']]
+      au_actual = [%w(Soumya Ray), %w(Terence Ow), %w(Sung S Kim)]
+      @sec_paper[:authors].must_equal au_actual
     end
 
     it 'has a publication date' do
@@ -75,20 +76,21 @@ describe 'Publication', 'A single publication listing' do
     it 'has some url for the main citations apage' do
       @sec_paper[:gscholar_url].must_match(/citations/)
     end
-
   end
 
   describe 'when it is an unpublished paper (missing attributes)' do
     before do
-      doc = Nokogiri.parse(UNPUB_PAPER)
+      doc = GentleScholar::Publication.text_to_document(UNPUB_PAPER)
       @unpub_paper = GentleScholar::Publication.extract_from_document(doc)
     end
 
     it 'has the right basic information' do
-      @unpub_paper[:title].must_equal 'The Central Role of Engagement in Online Communities'
-      @unpub_paper[:article_url].must_match(%r|http://.*|)
+      ti_actual = 'The Central Role of Engagement in Online Communities'
+      @unpub_paper[:title].must_equal ti_actual
+      @unpub_paper[:article_url].must_match(%r{http://.*})
       @unpub_paper[:gscholar_url].must_match(/citations/)
-      @unpub_paper[:authors].must_equal [['Soumya', 'Ray'], ['Sung', 'S', 'Kim'], ['James', 'G', 'Morris']]
+      au_actual = [%w(Soumya Ray), %w(Sung S Kim), %w(James G Morris)]
+      @unpub_paper[:authors].must_equal au_actual
       @unpub_paper[:date].must_be_instance_of Date
       @unpub_paper[:journal].must_equal 'Information Systems Research'
       @unpub_paper[:publisher].must_equal 'INFORMS'

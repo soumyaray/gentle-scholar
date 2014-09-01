@@ -18,9 +18,6 @@ module GentleScholar
       article_url:   '//div[@id="gsc_title"]/a',
       trend:         '//div[@id="gsc_graph"]',
       gscholar_url:  '//div[@id="gsc_lnv_ui"]/div/a'
-      # gscholar_url:  "//div[contains(@class,'g-section cit-dgb')]"\
-      #                        '/div/table/tr/td/a'
-      #chart_url:     '//div[contains(@class,"cit-dd")]/img',
     }
 
     SCAN_LAMBDAS = {
@@ -28,8 +25,7 @@ module GentleScholar
       cites_url:     ->(x) { x[0].attributes['href'].value },
       title:         ->(x) { x.text },
       article_url:   ->(x) { x.attr('href').value },
-      #chart_url:     ->(x) { x.attr('src').value },
-      trend:         ->(graph) { extract_trend(graph) },
+      trend:         ->(graph) { extract_cite_trend(graph) },
 
       gscholar_url:  ->(x) { GS_HOST_URL + x.attr('href').value }
     }
@@ -77,43 +73,31 @@ module GentleScholar
     end
 
     def self.extract_html_table(doc)
-      elements_a = TABLE_ATTR.map do |k, v|
+      extracted_h = TABLE_ATTR.map do |k, v|
         extract = GentleScholar::Publication.extract_table_item(v, doc)
         extract ? [k, extract] : nil
+      end.compact.to_h
+
+      processed_h = extracted_h.map do |attr, extracted|
+        processor = TABLE_LAMBDAS[attr]
+        processed = processor ? processor.call(extracted) : nil
+        processed ? [attr, processed] : [attr, extracted]
       end
 
-      elements = Hash[elements_a.compact].select { |_, v| v }
-
-      puts elements.to_s
-      puts '---'
-
-      elements.merge(
-        # Hash[TABLE_LAMBDAS.map { |key, lam| [key, lam.call(elements[key])] }]
-        Hash[elements.map { |attr, extracted|
-          if TABLE_LAMBDAS[attr]
-            [attr, TABLE_LAMBDAS[attr].call(extracted)]
-          else
-            [attr, extracted]
-          end
-        }]
-      )
+      extracted_h.merge(Hash[processed_h])
     end
 
     def self.extract_table_item(name, doc)
       elem = doc.xpath("//div[@class='gs_scl' and contains(.,'#{name}')]")
       begin
-        if elem.empty?
-          return nil
-        else
-          elem.xpath('div[@class="gsc_value"]').text
-        end
-      rescue #e
-        STDERR.puts "ERROR PROCESSING: #{name}"
-        #raise e
+        elem.empty? ? nil : elem.xpath('div[@class="gsc_value"]').text
+      rescue => e
+        STDERR.puts "ERROR PROCESSING TABLE ITEM: #{name}"
+        raise e
       end
     end
 
-    def self.extract_trend(doc)
+    def self.extract_cite_trend(doc)
       years = doc.xpath('//span[@class="gsc_g_t"]').children.map { |c| c.text }
       years_sym = years.map { |y| y.to_sym }
       count = doc.xpath('//span[@class="gsc_g_al"]').children.map { |c| c.text }
@@ -121,18 +105,13 @@ module GentleScholar
       Hash[years_sym.zip(count_i)]
     end
 
-    def self.http_to_file(scholar_pub_id = '6WjiSOwAAAAJ:u5HHmVD_uO8C', filename)
-      doc = GentleScholar::Publication.get_pub_http(scholar_pub_id)
-      File.open(filename, "w:#{doc.encoding}") { |f| f.write(doc) }
+    def self.http_to_file(scholar_pub_id, filename)
+      doc = get_pub_http(scholar_pub_id)
+      File.open(filename, 'w') { |f| f.write(doc) }
     end
 
-    def self.file_to_document(filename = 'spec/docs/unpub_doc.txt')
-      Nokogiri.parse(File.read(filename))
-    end
-
-    def self.extract_from_file(filename = 'spec/docs/unpub_doc.txt')
-      doc = file_to_document(filename)
-      extract_from_document doc
+    def self.text_to_document(text)
+      Nokogiri.parse(text)
     end
   end
 end
