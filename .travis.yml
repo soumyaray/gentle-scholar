@@ -5,8 +5,9 @@ rvm:
   - 1.9.3
   - jruby-head
   - jruby-19mode
-allow_failures:
-  - rvm: jruby-head
 only:
   - master
   - /^rel-.*$/
+matrix:
+  allow_failures:
+    - rvm: jruby-head
