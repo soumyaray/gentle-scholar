@@ -46,7 +46,7 @@ module GentleScholar
       date:     ->(x) { Date.strptime(x, '%Y/%m/%d') }
     }
 
-    def self.get_pub_http(scholar_pub_id)
+    def self.get_document_from_http(scholar_pub_id)
       auth_id, pub_id = scholar_pub_id.split(/:/)
       url = GS_CIT_URL + '&user=' + auth_id \
                        + '&citation_for_view=' + auth_id + ':' + pub_id
@@ -55,7 +55,7 @@ module GentleScholar
     end
 
     def self.extract_from_http(scholar_pub_id)
-      doc = get_pub_http(scholar_pub_id)
+      doc = get_document_from_http(scholar_pub_id)
       extract_from_document(doc)
     end
 
@@ -105,8 +105,9 @@ module GentleScholar
       Hash[years_sym.zip(count_i)]
     end
 
+    # Useful for creating new test docs
     def self.http_to_file(scholar_pub_id, filename)
-      doc = get_pub_http(scholar_pub_id)
+      doc = get_document_from_http(scholar_pub_id)
       File.open(filename, 'w') { |f| f.write(doc) }
     end
 
