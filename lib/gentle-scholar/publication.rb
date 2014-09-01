@@ -78,24 +78,38 @@ module GentleScholar
 
     def self.extract_html_table(doc)
       elements_a = TABLE_ATTR.map do |k, v|
-        extract = extract_table_item(v, doc)
+        extract = GentleScholar::Publication.extract_table_item(v, doc)
         extract ? [k, extract] : nil
       end
 
-      elements = Hash[elements_a.compact]
+      elements = Hash[elements_a.compact].select { |_, v| v }
+
+      puts elements.to_s
+      puts '---'
 
       elements.merge(
-        Hash[TABLE_LAMBDAS.map { |key, lam| [key, lam.call(elements[key])] }]
+        # Hash[TABLE_LAMBDAS.map { |key, lam| [key, lam.call(elements[key])] }]
+        Hash[elements.map { |attr, extracted|
+          if TABLE_LAMBDAS[attr]
+            [attr, TABLE_LAMBDAS[attr].call(extracted)]
+          else
+            [attr, extracted]
+          end
+        }]
       )
     end
 
     def self.extract_table_item(name, doc)
-      elem = doc.xpath("//div[@class='gs_scl' and starts-with(.,'#{name}')]")
+      elem = doc.xpath("//div[@class='gs_scl' and contains(.,'#{name}')]")
       begin
-        elem.children[1].text if elem
-      rescue e
+        if elem.empty?
+          return nil
+        else
+          elem.xpath('div[@class="gsc_value"]').text
+        end
+      rescue #e
         STDERR.puts "ERROR PROCESSING: #{name}"
-        raise e
+        #raise e
       end
     end
 
@@ -105,6 +119,20 @@ module GentleScholar
       count = doc.xpath('//span[@class="gsc_g_al"]').children.map { |c| c.text }
       count_i = count.map { |c| c.to_i }
       Hash[years_sym.zip(count_i)]
+    end
+
+    def self.http_to_file(scholar_pub_id = '6WjiSOwAAAAJ:u5HHmVD_uO8C', filename)
+      doc = GentleScholar::Publication.get_pub_http(scholar_pub_id)
+      File.open(filename, "w:#{doc.encoding}") { |f| f.write(doc) }
+    end
+
+    def self.file_to_document(filename = 'spec/docs/unpub_doc.txt')
+      Nokogiri.parse(File.read(filename))
+    end
+
+    def self.extract_from_file(filename = 'spec/docs/unpub_doc.txt')
+      doc = file_to_document(filename)
+      extract_from_document doc
     end
   end
 end

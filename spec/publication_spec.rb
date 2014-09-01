@@ -80,7 +80,7 @@ describe 'Publication', 'A single publication listing' do
 
   describe 'when it is an unpublished paper (missing attributes)' do
     before do
-      doc = Nokogiri::HTML(UNPUB_PAPER)
+      doc = Nokogiri.parse(UNPUB_PAPER)
       @unpub_paper = GentleScholar::Publication.extract_from_document(doc)
     end
 
