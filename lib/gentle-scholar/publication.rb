@@ -73,10 +73,12 @@ module GentleScholar
     end
 
     def self.extract_html_table(doc)
-      extracted_h = TABLE_ATTR.map do |k, v|
+      extracted_a = TABLE_ATTR.map do |k, v|
         extract = GentleScholar::Publication.extract_table_item(v, doc)
         extract ? [k, extract] : nil
-      end.compact.to_h
+      end.compact
+
+      extracted_h = Hash[extracted_a]
 
       processed_h = extracted_h.map do |attr, extracted|
         processor = TABLE_LAMBDAS[attr]
