@@ -7,7 +7,7 @@ rvm:
   - jruby-19mode
 only:
   - master
-  - /^rel-.*$/
+  - /^release-.*$/
 matrix:
   allow_failures:
     - rvm: jruby-head
