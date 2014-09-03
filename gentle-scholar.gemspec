@@ -5,6 +5,8 @@ Gem::Specification.new do |s|
   s.name        =  'gentle-scholar'
   s.version     =  GentleScholar::VERSION
   s.date        =  GentleScholar::DATE
+  s.executables << 'gentle'
+
   s.summary     =  'Google Scholar infor extractor'
   s.description =  'Extract author/paper info from Google Scholar'
   s.authors     =  ['Soumya Ray']
