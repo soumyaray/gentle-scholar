@@ -1,4 +1,4 @@
 module GentleScholar
-  VERSION = '2.0.2'
-  DATE    = '2014-05-27'
+  VERSION = '3.0.0'
+  DATE    = '2014-09-04'
 end
