@@ -78,6 +78,13 @@ describe 'Publication', 'A single publication listing' do
     end
   end
 
+  describe 'when it has keywords in its text' do
+    it 'should extract journal names containing the word "Journal"' do
+      jpub = GentleScholar::Publication.extract_from_http('6WjiSOwAAAAJ:2osOgNQ5qMEC')
+      jpub[:journal].must_equal 'International Journal of Information Management'
+    end
+  end
+
   describe 'when it is an unpublished paper (missing attributes)' do
     before do
       doc = GentleScholar::Publication.text_to_document(UNPUB_PAPER)

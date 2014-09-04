@@ -90,7 +90,7 @@ module GentleScholar
     end
 
     def self.extract_table_item(name, doc)
-      elem = doc.xpath("//div[@class='gs_scl' and contains(.,'#{name}')]")
+      elem = doc.xpath("//div[@class='gs_scl' and contains(div,'#{name}')]")
       begin
         elem.empty? ? nil : elem.xpath('div[@class="gsc_value"]').text
       rescue => e
