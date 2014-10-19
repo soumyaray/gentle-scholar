@@ -100,10 +100,10 @@ module GentleScholar
     end
 
     def self.extract_cite_trend(doc)
-      years = doc.xpath('//span[@class="gsc_g_t"]').children.map { |c| c.text }
-      years_sym = years.map { |y| y.to_sym }
-      count = doc.xpath('//span[@class="gsc_g_al"]').children.map { |c| c.text }
-      count_i = count.map { |c| c.to_i }
+      years = doc.xpath('//span[@class="gsc_g_t"]').children.map(&:text)
+      years_sym = years.map(&:to_sym)
+      count = doc.xpath('//span[@class="gsc_g_al"]').children.map(&:text)
+      count_i = count.map(&:to_i)
       Hash[years_sym.zip(count_i)]
     end
 
