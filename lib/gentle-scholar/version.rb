@@ -1,4 +1,5 @@
+# namespace GentleScholar
 module GentleScholar
-  VERSION = '3.0.1'
-  DATE    = '2014-09-05'
+  VERSION = '3.0.2'
+  DATE    = '2014-10-19'
 end
